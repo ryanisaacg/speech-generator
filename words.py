@@ -34,4 +34,6 @@ def get_word_map(word_list):
             add_to_entry(word, j - i - 1, word_list[j])
             j += 1
     return word_map
-print(get_word_map(get_word_list("Hello, hello, hello- oh no!")));
+with open('story.txt') as text:
+    data = text.read()
+print(get_word_map(get_word_list(data)));
