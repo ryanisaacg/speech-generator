@@ -1,4 +1,5 @@
 import re
+from random import random
 """
 get_word_list(text : String) -> [String]
 Creates a list of all the words found in the text, in order, in lowercase
@@ -43,7 +44,6 @@ It returns the probabilities for every possible subsequent word, with a total of
 """
 def get_word_probabilities(word, offset, word_map):
     data = word_map[word][offset - 1] #get only the relevant data
-    print (data)
     total = 0 #The total number of all of the counts of all of the occurences
     for key in data.keys():
         total += data[key]
@@ -51,6 +51,47 @@ def get_word_probabilities(word, offset, word_map):
     for key in data.keys():
         scaled[key] = data[key] / float(total) / offset
     return scaled
+"""
+get_next_word(context : [String], word_map : {String : [{String : Int}]}) -> String
+context are all the previous words in the chain
+word_map is the output for get_word_map
+returns the next word as chosen by a weighted random number generator
+"""
+def get_next_word(context, word_map):
+    start = max(len(context) - LOOK_AHEAD_AMT, 0) #Find the starting point for the actual context we'll use
+    probabilities = {}
+    total = 0
+    #Collect the word probabilities as given by the get_word_probabilities function
+    for word_index in range(start, len(context)):
+        new_probabilities = get_word_probabilities(context[word_index], word_index - start, word_map)
+        for key in new_probabilities.keys():
+            if key in probabilities:
+                probabilities[key] += new_probabilities[key]
+                total += new_probabilities[key]
+            else:
+                probabilities[key] = new_probabilities[key]
+                total += new_probabilities[key]
+    #Create an array of key-value pairs where the key is the word and the value is the minimum number threshold to produce that word
+    running_total = 0
+    probability_array = []
+    for key in probabilities:
+        probabilities[key] /= total #Guarantee that all entries will be normalized and the total will be 1
+        probability_array.append([probabilities[key] + running_total, key])
+        running_total += probabilities[key]
+    #Generate a random number to use to pick
+    number = random()
+    index = 0
+    while probability_array[index][0] < number and index < len(probability_array):
+        index += 1
+    return probability_array[index][1]
 with open('input.txt') as text:
     data = text.read()
-get_word_probabilities("patricia", 1, get_word_map(get_word_list(data)))
+word_list = get_word_list(data)
+word_map = get_word_map(word_list)
+NUMBER_GENERATE = 30
+context = word_list[0:10:]
+print("Generating using the initial string of: " + " ".join(context))
+for i in range(NUMBER_GENERATE):
+    next = get_next_word(context, word_map)
+    context.append(next)
+print("Generated: " +  " ".join(context))
