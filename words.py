@@ -34,6 +34,23 @@ def get_word_map(word_list):
             add_to_entry(word, j - i - 1, word_list[j])
             j += 1
     return word_map
-with open('story.txt') as text:
+"""
+get_word_probabilities(word : String, offset : Int, word_map : {String : [{String : Int}]}) -> {String : Float}
+word is the prompt for the generator
+offset is the number of words after the generated word should be
+word_map is the output of get_word_map
+It returns the probabilities for every possible subsequent word, with a total of 1 / offset
+"""
+def get_word_probabilities(word, offset, word_map):
+    data = word_map[word][offset - 1] #get only the relevant data
+    print (data)
+    total = 0 #The total number of all of the counts of all of the occurences
+    for key in data.keys():
+        total += data[key]
+    scaled = {}
+    for key in data.keys():
+        scaled[key] = data[key] / float(total) / offset
+    return scaled
+with open('input.txt') as text:
     data = text.read()
-print(get_word_map(get_word_list(data)));
+get_word_probabilities("patricia", 1, get_word_map(get_word_list(data)))
