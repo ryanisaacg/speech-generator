@@ -13,7 +13,7 @@ def get_word_list(text):
         #Get the word in lower case, with all non-alphabetic characters removed
         all_words[i] = regex.sub('', all_words[i]).lower()
     return all_words
-LOOK_AHEAD_AMT = 10
+LOOK_AHEAD_AMT = 100
 """
 get_word_map(word_list : [String]) -> {String : LOOK_AHEAD_AMT[{String : Int}]}
 Creates a map of words that are often found in the next ten words after a specific word
